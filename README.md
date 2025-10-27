@@ -287,10 +287,10 @@
 > </details>
 
 
+· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
 
 
-
-# Private 5G Network Setup
+# 2.Private 5G Network Setup
 
 A comprehensive guide to deploy a private 5G network using open-source software and hardware components.
 
