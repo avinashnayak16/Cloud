@@ -1,5 +1,5 @@
 ## Deploying a Private 5G Network (Open5GS + UERANSIM)
-<details>
+> <details>
 <summary>Open5GS + UERANSIM</summary>
 This README has been reformatted for easy copy-paste into a terminal. All shell commands are placed in fenced code blocks (bash). If you're on Windows, use WSL/Ubuntu or adapt commands for PowerShell where noted.
 
@@ -274,7 +274,11 @@ sudo tail -f /var/log/open5gs/upf.log
 This README was reformatted to make commands copy-pasteable. If you'd like a separate `script.sh` with the command sequence (for automation/testing), tell me which sections you want scripted and I will add it.
 
   
-</details>
+> </details>
+
+
+
+
 
 # Private 5G Network Setup
 
