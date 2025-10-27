@@ -1,7 +1,17 @@
-## Deploying a Private 5G Network (Open5GS + UERANSIM)
-> <details>
-  <summary>Open5GS + UERANSIM</summary>
+# Deploying a Private 5G Network (Open5GS + UERANSIM)
+
+> This guide provides a complete setup for a private 5G network using open-source components.
+
+<details>
+  <summary>📚 Detailed Setup Instructions (Click to Expand)</summary>
+  
   This README has been reformatted for easy copy-paste into a terminal. All shell commands are placed in fenced code blocks (bash). If you're on Windows, use WSL/Ubuntu or adapt commands for PowerShell where noted.
+  
+  ### Quick Links
+  - [Core Network Setup](#1-install-open5gs-vm1-192168159129)
+  - [UERANSIM Setup](#5-install-ueransim-vm2-192168159130)
+  - [Testing](#8-test-ue-internet-access)
+  - [Troubleshooting](#quick-troubleshooting)
 
   Requirements:
   - Two VMs (or two hosts on the same network):
