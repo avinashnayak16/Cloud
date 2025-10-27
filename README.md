@@ -1,277 +1,277 @@
 ## Deploying a Private 5G Network (Open5GS + UERANSIM)
 > <details>
-<summary>Open5GS + UERANSIM</summary>
-This README has been reformatted for easy copy-paste into a terminal. All shell commands are placed in fenced code blocks (bash). If you're on Windows, use WSL/Ubuntu or adapt commands for PowerShell where noted.
-
-Requirements:
-- Two VMs (or two hosts on the same network):
-  - Open5GS core: 192.168.159.129
-  - UERANSIM (RAN/UE): 192.168.159.130
-
----
-
-## 1. Install Open5GS (VM1: 192.168.159.129)
-
-Run the following on the Open5GS VM (Ubuntu 22.04):
-
-```bash
-sudo apt update
-sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:open5gs/latest
-sudo apt update
-sudo apt install -y open5gs
-```
-
-## 2. Configure Open5GS
-
-Edit AMF configuration (`/etc/open5gs/amf.yaml`) and set the server/client addresses accordingly. Example snippet:
-```bash
-sudo gedit /etc/open5gs/amf.yaml
-```
-
-```yaml
-amf:
-  sbi:
-    server:
-      - address: 192.168.159.129
-        port: 7777
-    client:
-      scp:
-        - uri: http://127.0.0.200:7777
-  ngap:
-    server:
-      - address: 192.168.159.129
-  metrics:
-    server:
-      - address: 192.168.159.129
-```
-
-Restart AMF:
-
-```bash
-sudo systemctl restart open5gs-amfd
-sudo tail -f /var/log/open5gs/amf.log
-```
-
-If you need to configure UPF, edit `/etc/open5gs/upf.yaml` (or correct file) and set addresses such as:
-
-```bash
-sudo gedit /etc/open5gs/upf.yaml
-```
-
-```yaml
-upf:
-  pfcp:
-    - addr: 127.0.0.7
-  gtpu:
-    - addr: 192.168.159.130
-```
-
-Restart UPF:
+  <summary>Open5GS + UERANSIM</summary>
+  This README has been reformatted for easy copy-paste into a terminal. All shell commands are placed in fenced code blocks (bash). If you're on Windows, use WSL/Ubuntu or adapt commands for PowerShell where noted.
+
+  Requirements:
+  - Two VMs (or two hosts on the same network):
+    - Open5GS core: 192.168.159.129
+    - UERANSIM (RAN/UE): 192.168.159.130
+
+  ---
+
+  ## 1. Install Open5GS (VM1: 192.168.159.129)
+
+  Run the following on the Open5GS VM (Ubuntu 22.04):
+
+  ```bash
+  sudo apt update
+  sudo apt install -y software-properties-common
+  sudo add-apt-repository ppa:open5gs/latest
+  sudo apt update
+  sudo apt install -y open5gs
+  ```
+
+  ## 2. Configure Open5GS
+
+  Edit AMF configuration (`/etc/open5gs/amf.yaml`) and set the server/client addresses accordingly. Example snippet:
+  ```bash
+  sudo gedit /etc/open5gs/amf.yaml
+  ```
+
+  ```yaml
+  amf:
+    sbi:
+      server:
+        - address: 192.168.159.129
+          port: 7777
+      client:
+        scp:
+          - uri: http://127.0.0.200:7777
+    ngap:
+      server:
+        - address: 192.168.159.129
+    metrics:
+      server:
+        - address: 192.168.159.129
+  ```
+
+  Restart AMF:
+
+  ```bash
+  sudo systemctl restart open5gs-amfd
+  sudo tail -f /var/log/open5gs/amf.log
+  ```
+
+  If you need to configure UPF, edit `/etc/open5gs/upf.yaml` (or correct file) and set addresses such as:
+
+  ```bash
+  sudo gedit /etc/open5gs/upf.yaml
+  ```
+
+  ```yaml
+  upf:
+    pfcp:
+      - addr: 127.0.0.7
+    gtpu:
+      - addr: 192.168.159.130
+  ```
+
+  Restart UPF:
 
-```bash
-sudo systemctl restart open5gs-upfd
-sudo tail -f /var/log/open5gs/upf.log
-```
-
----
-
-## 3. NAT / IP Forwarding (if you want UE internet access)
-
-Replace `ens33` below with your external interface name (find with `ip route show default`).
-
-```bash
-sudo sysctl -w net.ipv4.ip_forward=1
-sudo iptables -t nat -A POSTROUTING -o ens33 -j MASQUERADE
-sudo systemctl stop ufw
-sudo iptables -I FORWARD 1 -j ACCEPT
-```
-
-To persist iptables rules between reboots (Ubuntu):
+  ```bash
+  sudo systemctl restart open5gs-upfd
+  sudo tail -f /var/log/open5gs/upf.log
+  ```
+
+  ---
+
+  ## 3. NAT / IP Forwarding (if you want UE internet access)
+
+  Replace `ens33` below with your external interface name (find with `ip route show default`).
+
+  ```bash
+  sudo sysctl -w net.ipv4.ip_forward=1
+  sudo iptables -t nat -A POSTROUTING -o ens33 -j MASQUERADE
+  sudo systemctl stop ufw
+  sudo iptables -I FORWARD 1 -j ACCEPT
+  ```
+
+  To persist iptables rules between reboots (Ubuntu):
 
-```bash
-sudo apt install -y iptables-persistent
-sudo netfilter-persistent save
-```
+  ```bash
+  sudo apt install -y iptables-persistent
+  sudo netfilter-persistent save
+  ```
 
----
+  ---
 
-## 4. Install MongoDB and WebUI (on Open5GS VM)
+  ## 4. Install MongoDB and WebUI (on Open5GS VM)
 
-Install MongoDB (example for Ubuntu Jammy):
+  Install MongoDB (example for Ubuntu Jammy):
 
-```bash
-sudo apt update
-sudo apt install -y gnupg
-curl -fsSL https://pgp.mongodb.com/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
-echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
-sudo apt update
-sudo apt install -y mongodb-org
-sudo systemctl start mongod
-sudo systemctl enable mongod
-sudo systemctl status mongod
-```
-
-Install Node.js and the Open5GS WebUI:
-
-```bash
-sudo apt update
-sudo apt install -y ca-certificates curl gnupg
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-NODE_MAJOR=20
-echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-sudo apt update
-sudo apt install -y nodejs
+  ```bash
+  sudo apt update
+  sudo apt install -y gnupg
+  curl -fsSL https://pgp.mongodb.com/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+  echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+  sudo apt update
+  sudo apt install -y mongodb-org
+  sudo systemctl start mongod
+  sudo systemctl enable mongod
+  sudo systemctl status mongod
+  ```
+
+  Install Node.js and the Open5GS WebUI:
+
+  ```bash
+  sudo apt update
+  sudo apt install -y ca-certificates curl gnupg
+  sudo mkdir -p /etc/apt/keyrings
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+  NODE_MAJOR=20
+  echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+  sudo apt update
+  sudo apt install -y nodejs
 
-# Install WebUI (script from Open5GS)
-curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
-```
+  # Install WebUI (script from Open5GS)
+  curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
+  ```
 
-WebUI default access (change credentials in production):
+  WebUI default access (change credentials in production):
 
-- URL: http://localhost:9999
-- Username: admin
-- Password: 1423
+  - URL: http://localhost:9999
+  - Username: admin
+  - Password: 1423
 
-Default test subscriber values (found in UERANSIM configs):
+  Default test subscriber values (found in UERANSIM configs):
 
-- IMSI: 901700000000001
-- Subscriber Key: 465B5CE8B199B49FAA5F0A2EE238A6BC
-- USIM type: OPc
-- Operator Key (OPC): E8ED289DEBA952E4283B54E88E6183CA
+  - IMSI: 901700000000001
+  - Subscriber Key: 465B5CE8B199B49FAA5F0A2EE238A6BC
+  - USIM type: OPc
+  - Operator Key (OPC): E8ED289DEBA952E4283B54E88E6183CA
 
----
+  ---
 
-## 5. Install UERANSIM (VM2: 192.168.159.130)
+  ## 5. Install UERANSIM (VM2: 192.168.159.130)
 
-Install prerequisites and build UERANSIM on the RAN/UE VM:
+  Install prerequisites and build UERANSIM on the RAN/UE VM:
 
-```bash
-sudo apt update
-sudo apt upgrade -y
-sudo apt install -y make g++ libsctp-dev lksctp-tools iproute2
-sudo snap install cmake --classic
+  ```bash
+  sudo apt update
+  sudo apt upgrade -y
+  sudo apt install -y make g++ libsctp-dev lksctp-tools iproute2
+  sudo snap install cmake --classic
 
-git clone https://github.com/aligungr/UERANSIM
-cd UERANSIM
-make
-```
+  git clone https://github.com/aligungr/UERANSIM
+  cd UERANSIM
+  make
+  ```
 
----
+  ---
 
-## 6. Configure gNB (example config: `config/open5gs-gnb.yaml`)
+  ## 6. Configure gNB (example config: `config/open5gs-gnb.yaml`)
 
-Edit `config/open5gs-gnb.yaml` and set local IPs and AMF address:
+  Edit `config/open5gs-gnb.yaml` and set local IPs and AMF address:
 
-```bash
-sudo gedit config/open5gs-gnb.yaml
-```
+  ```bash
+  sudo gedit config/open5gs-gnb.yaml
+  ```
 
-```yaml
-linkIp: 192.168.159.130
-ngapIp: 192.168.159.130
-gtpIp: 192.168.159.130
-amfConfigs:
-  - address: 192.168.159.129
-    port: 38412
-```
+  ```yaml
+  linkIp: 192.168.159.130
+  ngapIp: 192.168.159.130
+  gtpIp: 192.168.159.130
+  amfConfigs:
+    - address: 192.168.159.129
+      port: 38412
+  ```
 
-Start the gNB (from the UERANSIM directory):
+  Start the gNB (from the UERANSIM directory):
 
-```bash
-./build/nr-gnb -c config/open5gs-gnb.yaml
-```
+  ```bash
+  ./build/nr-gnb -c config/open5gs-gnb.yaml
+  ```
 
-You should see SCTP/NGAP messages indicating NG setup success if the AMF is reachable.
+  You should see SCTP/NGAP messages indicating NG setup success if the AMF is reachable.
 
----
+  ---
 
-## 7. Configure & Run UE (example config: `config/open5gs-ue.yaml`)
+  ## 7. Configure & Run UE (example config: `config/open5gs-ue.yaml`)
 
-Edit `config/open5gs-ue.yaml` to use the test subscriber values and gNB search list:
+  Edit `config/open5gs-ue.yaml` to use the test subscriber values and gNB search list:
 
-```bash
-sudo gedit config/open5gs-ue.yaml
-```
+  ```bash
+  sudo gedit config/open5gs-ue.yaml
+  ```
 
-```yaml
-supi: 'imsi-901700000000001'
-mcc: '901'
-mnc: '70'
-key: '465B5CE8B199B49FAA5F0A2EE238A6BC'
-op: 'E8ED289DEBA952E4283B54E88E6183CA'
-opType: 'OPC'
-amf: '8000'
-imei: '356938035643803'
-gnbSearchList:
-  - 192.168.159.130
-```
+  ```yaml
+  supi: 'imsi-901700000000001'
+  mcc: '901'
+  mnc: '70'
+  key: '465B5CE8B199B49FAA5F0A2EE238A6BC'
+  op: 'E8ED289DEBA952E4283B54E88E6183CA'
+  opType: 'OPC'
+  amf: '8000'
+  imei: '356938035643803'
+  gnbSearchList:
+    - 192.168.159.130
+  ```
 
-Start the UE (from UERANSIM directory):
+  Start the UE (from UERANSIM directory):
 
-```bash
-sudo ./build/nr-ue -c config/open5gs-ue.yaml
-```
+  ```bash
+  sudo ./build/nr-ue -c config/open5gs-ue.yaml
+  ```
 
-If successful, you'll see logs indicating registration, PDU session establishment, and a TUN interface (e.g., `uesimtun0, 10.45.0.5`).
+  If successful, you'll see logs indicating registration, PDU session establishment, and a TUN interface (e.g., `uesimtun0, 10.45.0.5`).
 
----
+  ---
 
-## 8. Test UE Internet Access
+  ## 8. Test UE Internet Access
 
-Ping via the UE TUN interface (replace `uesimtun0` with the actual TUN name shown by UERANSIM):
+  Ping via the UE TUN interface (replace `uesimtun0` with the actual TUN name shown by UERANSIM):
 
-```bash
-ping -I uesimtun0 google.com
-```
+  ```bash
+  ping -I uesimtun0 google.com
+  ```
 
-Curl via the UE interface:
+  Curl via the UE interface:
 
-```bash
-curl --interface uesimtun0 -X GET "https://httpbin.org/get"
-```
+  ```bash
+  curl --interface uesimtun0 -X GET "https://httpbin.org/get"
+  ```
 
----
+  ---
 
-## Quick Troubleshooting
+  ## Quick Troubleshooting
 
-- View AMF logs:
+  - View AMF logs:
 
-```bash
-sudo tail -f /var/log/open5gs/amf.log
-sudo journalctl -u open5gs-amf
-```
+  ```bash
+  sudo tail -f /var/log/open5gs/amf.log
+  sudo journalctl -u open5gs-amf
+  ```
 
-- MongoDB:
+  - MongoDB:
 
-```bash
-sudo journalctl -u mongod
-sudo systemctl restart mongod
-```
+  ```bash
+  sudo journalctl -u mongod
+  sudo systemctl restart mongod
+  ```
 
-- Verify UPF logs:
+  - Verify UPF logs:
 
-```bash
-sudo tail -f /var/log/open5gs/upf.log
-```
+  ```bash
+  sudo tail -f /var/log/open5gs/upf.log
+  ```
 
----
+  ---
 
-## Notes for Windows users
+  ## Notes for Windows users
 
-- If you're on Windows, run these steps inside WSL (Ubuntu) for best compatibility. Some commands (like `snap`, `systemctl`, `iptables`) require a Linux environment.
-- If you must run from PowerShell, consider using `wsl` to invoke commands, e.g.:
+  - If you're on Windows, run these steps inside WSL (Ubuntu) for best compatibility. Some commands (like `snap`, `systemctl`, `iptables`) require a Linux environment.
+  - If you must run from PowerShell, consider using `wsl` to invoke commands, e.g.:
 
-## 🔗 References
+  ## 🔗 References
 
-- [Documentation](https://medium.com/rahasak/5g-core-network-setup-with-open5gs-and-ueransim-cd0e77025fd7)
+  - [Documentation](https://medium.com/rahasak/5g-core-network-setup-with-open5gs-and-ueransim-cd0e77025fd7)
 
----
+  ---
 
-## Summary
+  ## Summary
 
-This README was reformatted to make commands copy-pasteable. If you'd like a separate `script.sh` with the command sequence (for automation/testing), tell me which sections you want scripted and I will add it.
+  This README was reformatted to make commands copy-pasteable. If you'd like a separate `script.sh` with the command sequence (for automation/testing), tell me which sections you want scripted and I will add it.
 
   
 > </details>
