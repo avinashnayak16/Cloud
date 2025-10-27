@@ -24,13 +24,15 @@
 
   Run the following on the Open5GS VM (Ubuntu 22.04):
 
-```bash
-> sudo apt update
-> sudo apt install -y software-properties-common
-> sudo add-apt-repository ppa:open5gs/latest
-> sudo apt update
-> sudo apt install -y open5gs
-```  ## 2. Configure Open5GS
+  ```bash
+  sudo apt update
+  sudo apt install -y software-properties-common
+  sudo add-apt-repository ppa:open5gs/latest
+  sudo apt update
+  sudo apt install -y open5gs
+  ```
+
+  ## 2. Configure Open5GS
 
   Edit AMF configuration (`/etc/open5gs/amf.yaml`) and set the server/client addresses accordingly. Example snippet:
   ```bash
@@ -56,10 +58,12 @@
 
   Restart AMF:
 
-```bash
-> sudo systemctl restart open5gs-amfd
-> sudo tail -f /var/log/open5gs/amf.log
-```  If you need to configure UPF, edit `/etc/open5gs/upf.yaml` (or correct file) and set addresses such as:
+  ```bash
+  sudo systemctl restart open5gs-amfd
+  sudo tail -f /var/log/open5gs/amf.log
+  ```
+
+  If you need to configure UPF, edit `/etc/open5gs/upf.yaml` (or correct file) and set addresses such as:
 
   ```bash
   sudo gedit /etc/open5gs/upf.yaml
@@ -75,55 +79,63 @@
 
   Restart UPF:
 
-```bash
-> sudo systemctl restart open5gs-upfd
-> sudo tail -f /var/log/open5gs/upf.log
-```  ---
+  ```bash
+  sudo systemctl restart open5gs-upfd
+  sudo tail -f /var/log/open5gs/upf.log
+  ```
+
+  ---
 
   ## 3. NAT / IP Forwarding (if you want UE internet access)
 
   Replace `ens33` below with your external interface name (find with `ip route show default`).
 
-```bash
-> sudo sysctl -w net.ipv4.ip_forward=1
-> sudo iptables -t nat -A POSTROUTING -o ens33 -j MASQUERADE
-> sudo systemctl stop ufw
-> sudo iptables -I FORWARD 1 -j ACCEPT
-```  To persist iptables rules between reboots (Ubuntu):
+  ```bash
+  sudo sysctl -w net.ipv4.ip_forward=1
+  sudo iptables -t nat -A POSTROUTING -o ens33 -j MASQUERADE
+  sudo systemctl stop ufw
+  sudo iptables -I FORWARD 1 -j ACCEPT
+  ```
 
-```bash
-> sudo apt install -y iptables-persistent
-> sudo netfilter-persistent save
-```  ---
+  To persist iptables rules between reboots (Ubuntu):
+
+  ```bash
+  sudo apt install -y iptables-persistent
+  sudo netfilter-persistent save
+  ```
+
+  ---
 
   ## 4. Install MongoDB and WebUI (on Open5GS VM)
 
   Install MongoDB (example for Ubuntu Jammy):
 
-```bash
-> sudo apt update
-> sudo apt install -y gnupg
-> curl -fsSL https://pgp.mongodb.com/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
-> echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
-> sudo apt update
-> sudo apt install -y mongodb-org
-> sudo systemctl start mongod
-> sudo systemctl enable mongod
-> sudo systemctl status mongod
-```  Install Node.js and the Open5GS WebUI:
+  ```bash
+  sudo apt update
+  sudo apt install -y gnupg
+  curl -fsSL https://pgp.mongodb.com/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+  echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+  sudo apt update
+  sudo apt install -y mongodb-org
+  sudo systemctl start mongod
+  sudo systemctl enable mongod
+  sudo systemctl status mongod
+  ```
+
+  Install Node.js and the Open5GS WebUI:
 
   ```bash
-> sudo apt update
-> sudo apt install -y ca-certificates curl gnupg
-> sudo mkdir -p /etc/apt/keyrings
-> curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-> NODE_MAJOR=20
-> echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-> sudo apt update
-> sudo apt install -y nodejs
+  sudo apt update
+  sudo apt install -y ca-certificates curl gnupg
+  sudo mkdir -p /etc/apt/keyrings
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+  NODE_MAJOR=20
+  echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+  sudo apt update
+  sudo apt install -y nodejs
 
-# Install WebUI (script from Open5GS)
-> curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
+  # Install WebUI (script from Open5GS)
+  curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
   ```
 
   WebUI default access (change credentials in production):
@@ -146,14 +158,14 @@
   Install prerequisites and build UERANSIM on the RAN/UE VM:
 
   ```bash
-> sudo apt update
-> sudo apt upgrade -y
-> sudo apt install -y make g++ libsctp-dev lksctp-tools iproute2
-> sudo snap install cmake --classic
+  sudo apt update
+  sudo apt upgrade -y
+  sudo apt install -y make g++ libsctp-dev lksctp-tools iproute2
+  sudo snap install cmake --classic
 
-> git clone https://github.com/aligungr/UERANSIM
-> cd UERANSIM
-> make
+  git clone https://github.com/aligungr/UERANSIM
+  cd UERANSIM
+  make
   ```
 
   ---
@@ -178,7 +190,7 @@
   Start the gNB (from the UERANSIM directory):
 
   ```bash
-> ./build/nr-gnb -c config/open5gs-gnb.yaml
+  ./build/nr-gnb -c config/open5gs-gnb.yaml
   ```
 
   You should see SCTP/NGAP messages indicating NG setup success if the AMF is reachable.
@@ -209,7 +221,7 @@
   Start the UE (from UERANSIM directory):
 
   ```bash
-> sudo ./build/nr-ue -c config/open5gs-ue.yaml
+  sudo ./build/nr-ue -c config/open5gs-ue.yaml
   ```
 
   If successful, you'll see logs indicating registration, PDU session establishment, and a TUN interface (e.g., `uesimtun0, 10.45.0.5`).
@@ -221,13 +233,13 @@
   Ping via the UE TUN interface (replace `uesimtun0` with the actual TUN name shown by UERANSIM):
 
   ```bash
-> ping -I uesimtun0 google.com
+  ping -I uesimtun0 google.com
   ```
 
   Curl via the UE interface:
 
   ```bash
-> curl --interface uesimtun0 -X GET "https://httpbin.org/get"
+  curl --interface uesimtun0 -X GET "https://httpbin.org/get"
   ```
 
   ---
@@ -237,21 +249,21 @@
   - View AMF logs:
 
   ```bash
->  sudo tail -f /var/log/open5gs/amf.log
->  sudo journalctl -u open5gs-amf
+  sudo tail -f /var/log/open5gs/amf.log
+  sudo journalctl -u open5gs-amf
   ```
 
   - MongoDB:
 
   ```bash
->  sudo journalctl -u mongod
->  sudo systemctl restart mongod
+  sudo journalctl -u mongod
+  sudo systemctl restart mongod
   ```
 
   - Verify UPF logs:
 
   ```bash
->  sudo tail -f /var/log/open5gs/upf.log
+  sudo tail -f /var/log/open5gs/upf.log
   ```
 
   ---
@@ -315,51 +327,51 @@ MongoDB serves as the database for Open5GS core network functions.
 
 ```bash
 # Update system packages
-> sudo apt update
-> sudo apt install -y gnupg
+sudo apt update
+sudo apt install -y gnupg
 
 # Add MongoDB repository
-> curl -fsSL https://pgp.mongodb.com/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
-> echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+curl -fsSL https://pgp.mongodb.com/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
 
 # Install and start MongoDB
-> sudo apt update
-> sudo apt install -y mongodb-org
-> sudo systemctl start mongod
-> sudo systemctl enable mongod
-> sudo systemctl status mongod
+sudo apt update
+sudo apt install -y mongodb-org
+sudo systemctl start mongod
+sudo systemctl enable mongod
+sudo systemctl status mongod
 ```
 
 ### 2. Open5GS Installation
 
 ```bash
-> # Add Open5GS repository
-> sudo add-apt-repository ppa:open5gs/latest
-> sudo apt update
-> 
-> # Install Open5GS
-> sudo apt install -y open5gs
-> 
-> # Verify installation (should show 17 active services)
-> sudo systemctl status open5gs-*
-> sudo systemctl status open5gs-* | grep -c "active"
+# Add Open5GS repository
+sudo add-apt-repository ppa:open5gs/latest
+sudo apt update
+
+# Install Open5GS
+sudo apt install -y open5gs
+
+# Verify installation (should show 17 active services)
+sudo systemctl status open5gs-*
+sudo systemctl status open5gs-* | grep -c "active"
 ```
 
 ### 3. WebUI Setup
 
 ```bash
->  # Install Node.js
->  sudo apt update
->  sudo apt install -y ca-certificates curl gnupg
->  sudo mkdir -p /etc/apt/keyrings
->  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
->  NODE_MAJOR=20
->  echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
->  sudo apt update
->  sudo apt install -y nodejs
->  
->  # Install WebUI
->  curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
+# Install Node.js
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+NODE_MAJOR=20
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+sudo apt update
+sudo apt install -y nodejs
+
+# Install WebUI
+curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
 ```
 
 **WebUI Access:**
@@ -370,48 +382,48 @@ MongoDB serves as the database for Open5GS core network functions.
 ### 4. Network Configuration
 
 ```bash
-> # Enable IP forwarding
-> sudo sysctl -w net.ipv4.ip_forward=1
-> 
-> # Configure NAT (replace eth0 with your interface)
-> sudo iptables -t nat -A POSTROUTING -o $(ip route show default | awk '/default/ {print $5}') -j MASQUERADE
-> sudo systemctl stop ufw
-> sudo iptables -I FORWARD 1 -j ACCEPT
-> 
-> # Persist iptables rules
-> sudo apt install -y iptables-persistent
-> sudo dpkg-reconfigure iptables-persistent
+# Enable IP forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+
+# Configure NAT (replace eth0 with your interface)
+sudo iptables -t nat -A POSTROUTING -o $(ip route show default | awk '/default/ {print $5}') -j MASQUERADE
+sudo systemctl stop ufw
+sudo iptables -I FORWARD 1 -j ACCEPT
+
+# Persist iptables rules
+sudo apt install -y iptables-persistent
+sudo dpkg-reconfigure iptables-persistent
 ```
 
 ### 5. srsRAN Project Setup
 
 ```bash
 # Install dependencies
-> sudo apt update
-> sudo apt install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev libuhd-dev uhd-host
+sudo apt update
+sudo apt install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev libuhd-dev uhd-host
 
 # Clone and build srsRAN
-> git clone https://github.com/srsRAN/srsRAN_Project.git
-> cd srsRAN_Project
-> mkdir build
-> cd build
-> cmake ../
-> make -j $(nproc)
-> make test -j $(nproc)
-> sudo make install
+git clone https://github.com/srsRAN/srsRAN_Project.git
+cd srsRAN_Project
+mkdir build
+cd build
+cmake ../
+make -j $(nproc)
+make test -j $(nproc)
+sudo make install
 ```
 
 ### 6. USRP B210 Setup
 
 ```bash
 # Install UHD library and download firmware
-> sudo apt update
-> sudo apt install -y libuhd-dev uhd-host
-> sudo python3 /usr/lib/uhd/utils/uhd_images_downloader.py
+sudo apt update
+sudo apt install -y libuhd-dev uhd-host
+sudo python3 /usr/lib/uhd/utils/uhd_images_downloader.py
 
 # Verify USRP connection
-> uhd_find_devices
-> uhd_usrp_probe
+uhd_find_devices
+uhd_usrp_probe
 ```
 
 ## ⚙️ Configuration
@@ -421,8 +433,8 @@ MongoDB serves as the database for Open5GS core network functions.
 Edit the gNB configuration file:
 
 ```bash
-> cd srsRAN_Project/build/apps/gnb/
-> sudo nano gnb_rf_b200_tdd_n78_20mhz.yml
+cd srsRAN_Project/build/apps/gnb/
+sudo nano gnb_rf_b200_tdd_n78_20mhz.yml
 ```
 
 Key configuration parameters:
@@ -452,12 +464,12 @@ cell_cfg:
 
 ```bash
 # Extract and compile UICC tools
-> tar -xvzf uicc-v3.3.tgz
-> cd uicc-v3.3
-> make
+tar -xvzf uicc-v3.3.tgz
+cd uicc-v3.3
+make
 
 # Program the SIM card
-> sudo ./program_uicc --adm 12345678 --imsi 999700000000001 --isdn 00000001 --acc 0001 --key 6874736969202073796d4b2079650a73 --opc 504f20634f6320504f50206363500a4f --spn "CSE" --authenticate --noreadafter
+sudo ./program_uicc --adm 12345678 --imsi 999700000000001 --isdn 00000001 --acc 0001 --key 6874736969202073796d4b2079650a73 --opc 504f20634f6320504f50206363500a4f --spn "CSE" --authenticate --noreadafter
 ```
 
 ## 🚀 Running the Network
@@ -466,8 +478,8 @@ cell_cfg:
 
 ```bash
 # Restart Open5GS services
-> sudo systemctl restart open5gs-*
-> sudo systemctl status open5gs-* | grep -c "active"
+sudo systemctl restart open5gs-*
+sudo systemctl status open5gs-* | grep -c "active"
 ```
 
 ### 2. Configure Subscriber
@@ -481,8 +493,8 @@ Access WebUI at http://localhost:9999 and add subscriber:
 ### 3. Start gNB
 
 ```bash
-> cd srsRAN_Project/build/apps/gnb/
-> sudo ./gnb -c gnb_rf_b200_tdd_n78_20mhz.yml
+cd srsRAN_Project/build/apps/gnb/
+sudo ./gnb -c gnb_rf_b200_tdd_n78_20mhz.yml
 ```
 
 ## 🔧 Troubleshooting
@@ -490,29 +502,29 @@ Access WebUI at http://localhost:9999 and add subscriber:
 ### MongoDB Issues
 ```bash
 # Check MongoDB logs
-> sudo journalctl -u mongod
+sudo journalctl -u mongod
 
 # Restart MongoDB
-> sudo systemctl restart mongod
+sudo systemctl restart mongod
 ```
 
 ### Open5GS Services
 ```bash
-> # Check service status
-> sudo systemctl status open5gs-*
-> 
-> # View logs
-> sudo journalctl -u open5gs-amf
-> sudo tail -f /var/log/open5gs/amf.log
+# Check service status
+sudo systemctl status open5gs-*
+
+# View logs
+sudo journalctl -u open5gs-amf
+sudo tail -f /var/log/open5gs/amf.log
 ```
 
 ### USRP B210 Issues
 ```bash
-> # Verify USB 3.0 connection
-> lsusb | grep Ettus
-> 
-> # Reinstall UHD drivers
-> sudo apt install --reinstall libuhd-dev uhd-host
+# Verify USB 3.0 connection
+lsusb | grep Ettus
+
+# Reinstall UHD drivers
+sudo apt install --reinstall libuhd-dev uhd-host
 ```
 
 ### gNB Connection Issues
@@ -525,8 +537,8 @@ Access WebUI at http://localhost:9999 and add subscriber:
 ### Network Performance
 ```bash
 # Test with iperf3
-> iperf3 -s  # On server
-> iperf3 -c <server_ip>  # On client
+iperf3 -s  # On server
+iperf3 -c <server_ip>  # On client
 ```
 
 ### Signal Quality
