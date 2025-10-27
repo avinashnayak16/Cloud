@@ -1,6 +1,6 @@
 ## Deploying a Private 5G Network (Open5GS + UERANSIM)
 <details>
-
+<summary>Open5GS + UERANSIM</summary>
 This README has been reformatted for easy copy-paste into a terminal. All shell commands are placed in fenced code blocks (bash). If you're on Windows, use WSL/Ubuntu or adapt commands for PowerShell where noted.
 
 Requirements:
