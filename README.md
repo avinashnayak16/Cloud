@@ -1,4 +1,4 @@
-# Deploying a Private 5G Network (Open5GS + UERANSIM)
+# 1. Deploying a Private 5G Network (Open5GS + UERANSIM)
 
 > This guide provides a complete setup for a private 5G network using open-source components.
 
@@ -287,8 +287,8 @@
 > </details>
 
 
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
-
+<br />
+<hr>
 
 # 2.Private 5G Network Setup
 
