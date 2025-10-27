@@ -1,0 +1,15 @@
+# AMF Configuration for Open5GS
+amf:
+  sbi:
+    server:
+      - address: 192.168.159.129
+        port: 7777
+    client:
+      scp:
+        - uri: http://127.0.0.200:7777
+  ngap:
+    server:
+      - address: 192.168.159.129
+  metrics:
+    server:
+      - address: 192.168.159.129

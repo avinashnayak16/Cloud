@@ -1,0 +1,7 @@
+# gNB Configuration for UERANSIM
+linkIp: 192.168.159.130
+ngapIp: 192.168.159.130
+gtpIp: 192.168.159.130
+amfConfigs:
+  - address: 192.168.159.129
+    port: 38412
