@@ -832,6 +832,17 @@ This guide provides a complete, step-by-step implementation of a private 5G netw
   - USIM type: OPc
   - Operator Key (OPC): E8ED289DEBA952E4283B54E88E6183CA
 
+  #### **Slice 1 - eMBB (Enhanced Mobile Broadband)**
+  ![Slice 1 Architecture](images/slice1.png)
+
+  #### **Slice 2 - URLLC (Ultra Reliable Low Latency Communications)**
+  ![Slice 2.0 Architecture](images/slice2.0.png)
+  ![Slice 2.1 Architecture](images/slice2.1.png)
+  ![Slice 2.2 Architecture](images/slice2.2.png)
+
+  #### **Slice 3 - mMTC (Massive Machine Type Communications)**
+  ![Slice 3 Architecture](images/slice3.png)
+
   ---
 
   ## 5. Install UERANSIM (VM2: 192.168.159.130)
