@@ -134,13 +134,9 @@ Choose your deployment approach:
 
 This guide provides a complete setup for a private 5G network using open-source components.
 
----
-
 ## 📖 Overview
 
 This repository contains comprehensive documentation and guides for deploying a complete private 5G network infrastructure. Whether you're looking to set up a laboratory environment, develop 5G applications, or test network slicing concepts, this guide provides everything you need.
-
----
 
 <details>
   <summary>📚 Detailed Setup Instructions (Click to Expand)</summary>
@@ -447,13 +443,13 @@ This repository contains comprehensive documentation and guides for deploying a 
 
 <br />
 <hr>
+<hr>
 
 # 2. Deploying a Private 5G Network with Network Slicing
 ## (Open5GS + UERANSIM) Static Network Slicing Implementation
 
 A comprehensive guide for deploying a complete private 5G network infrastructure using open-source components with support for network slicing (eMBB, URLLC, mMTC).
 
----
 
 ## 📋 Overview
 
@@ -468,7 +464,6 @@ This guide provides a complete, step-by-step implementation of a private 5G netw
 - **Database:** MongoDB for subscriber and network policy management
 - **Web Interface:** WebUI for network management and subscriber provisioning
 
----
 
 <details>
   <summary>📚 Detailed Setup Instructions (Click to Expand)</summary>
@@ -1106,6 +1101,7 @@ This guide provides a complete, step-by-step implementation of a private 5G netw
 </details>
 
 <br />
+<hr>
 <hr>
 
 # 3.Private 5G Network Setup TestBed
